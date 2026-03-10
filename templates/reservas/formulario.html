@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Reserva - Sítio Vianas</title>
+
+    <style>        
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("{% static 'imagens/sitiovianas.png' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.87);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 350px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.293);
+            z-index: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #219150;
+        }
+
+        .erro {
+            color: red;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="overlay"></div>
+<div class="container">
+
+    <h2>Reserva - Sítio Vianas</h2>
+
+    {% if erro %}
+        <div class="erro">{{ erro }}</div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label>Nome</label>
+        <input type="text" name="nome" required>
+
+        <label>Telefone</label>
+        <input type="text" name="telefone" required>
+
+        <label>Data de Entrada</label>
+        <input type="date" name="data_entrada" value="{{entrada}}">
+
+        <label>Data de Saída</label>
+        <input type="date" name="data_saida" value="{{saida}}">
+
+        <button type="button" onclick="reservarwhatsapp()">Reservar pelo WhatsApp</button>
+    </form>
+
+</div>
+<script>
+    
+    function reservarwhatsapp(){
+
+        let data_entrada = document.querySelector("input[name='data_entrada']").value;
+        let mensagem = "Olá, gostaria de reservar o Sítio Vianas para o dia " + data_entrada;
+        let telefone = "5511974166149";
+        let url = "https://wa.me/" + telefone + "?text=" + encodeURIComponent(mensagem);
+
+        window.open(url, "_blank");
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<h1>Finalizar Reserva</h1>
+
+<label>Entrada</label>
+<input type="date" id="entrada">
+
+<br><br>
+
+<label>Saída</label>
+<input type="date" id="saida">
+
+<br><br>
+
+<label>Nome</label>
+<input type="text" id="nome">
+
+<br><br>
+
+<label>Telefone</label>
+<input type="text" id="telefone">
+
+<br><br>
+
+<button onclick="reservarWhatsapp()">
+Reservar pelo WhatsApp
+</button>
+<script>
+
+const params = new URLSearchParams(window.location.search)
+
+document.getElementById("entrada").value = params.get("entrada")
+document.getElementById("saida").value = params.get("saida")
+
+function reservarWhatsapp(){
+
+let entrada = document.getElementById("entrada").value
+let saida = document.getElementById("saida").value
+let nome = document.getElementById("nome").value
+let telefone = document.getElementById("telefone").value
+
+let mensagem = `Olá! Gostaria de reservar o Sítio Vianas.
+
+Entrada: ${entrada}
+Saída: ${saida}
+Nome: ${nome}
+Telefone: ${telefone}`
+
+let url = "https://wa.me/5511974166149?text=" + encodeURIComponent(mensagem)
+
+window.open(url)
+
+}
+</script>

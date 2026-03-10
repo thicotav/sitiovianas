@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Calendário - Sítio Vianas</title>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+margin:0;
+padding:15px;
+background:#f2f2f2;
+}
+
+h1{
+text-align:center;
+font-size:22px;
+margin-bottom:20px;
+}
+
+#calendar{
+max-width:500px;
+margin:auto;
+background:white;
+padding:15px;
+border-radius:15px;
+box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+/* remove bordas feias */
+.fc-theme-standard td,
+.fc-theme-standard th{
+border:none;
+}
+
+/* espaçamento dos dias */
+.fc-daygrid-day{
+padding:5px;
+}
+
+/* estilo padrão dos dias */
+.fc-daygrid-day-number{
+font-weight:bold;
+color:#333;
+}
+
+/* dia de hoje */
+.fc-day-today{
+background:#e8f5e9 !important;
+border-radius:10px;
+}
+
+/* dias reservados */
+.fc-bg-event{
+background:#ff4d4d !important;
+opacity:0.8;
+border-radius:8px;
+}
+
+/* efeito quando passa o dedo/mouse */
+.fc-daygrid-day:hover{
+background:#ecf0f1;
+border-radius:10px;
+cursor:pointer;
+}
+
+/* responsivo para celular */
+.fc-toolbar-title{
+font-size:18px;
+}
+
+/* Estilo visual do Airbnb */
+.fc-highlight{
+background: #4a6cf7 !important;
+opacity: 0.25;
+}
+
+.fc-daygrid-day.fc-day-selected{
+background: #4a6cf7;
+color: white;
+border-radius: 50%;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Calendário de Reservas</h1>
+
+<div id="calendar"></div>
+
+<br></br>
+
+<button onclick="irParaReserva()" style="
+padding: 12px 25px;
+background: #2ecc71;
+border: none;
+color: white;
+font-size: 16px;
+border-radius: 8px;
+cursor: pointer;
+display: block;
+margin: 20px auto;">
+Confirmar Reserva
+</button>
+
+<script>
+
+let dataEntrada = null
+let dataSaida = null
+let reservasExistentes =[]
+
+document.addEventListener('DOMContentLoaded', function() {
+
+var calendarEl = document.getElementById('calendar');
+
+var calendar = new FullCalendar.Calendar(calendarEl, {
+
+initialView: 'dayGridMonth',
+height: 'auto',
+locale: 'pt-br',
+
+selectable: true,
+selectMirror: true,
+
+select: function(info){
+
+let entradaSelecionada = new Date(info.startStr)
+let saidaSelecionada = new Date(info.endStr)
+
+let conflito = reservasExistentes.some(reserva => {
+
+let entradaReserva = new Date(reserva.start)
+let saidaReserva = new Date(reserva.end)
+
+return (
+entradaSelecionada < saidaReserva &&
+saidaSelecionada > entradaReserva
+)
+
+})
+
+if(conflito){
+
+alert("Essas datas já estão reservadas!")
+
+calendar.unselect()
+return
+
+}
+
+dataEntrada = info.startStr
+dataSaida = info.endStr
+
+alert("Entrada: " + dataEntrada + " Saída: " + dataSaida)
+
+},
+
+selectAllow: function(selectInfo){
+
+let inicio = new Date(selectInfo.startStr)
+let fim = new Date(selectInfo.endStr)
+
+for(let reserva of reservasExistentes){
+
+let inicioReserva = new Date(reserva.start)
+let fimReserva = new Date(reserva.end)
+
+fimReserva.setDate(fimReserva.getDate() - 1)
+
+if(inicio <= fimReserva && fim >= inicioReserva){
+
+return false
+
+}
+
+}
+
+return true
+
+},
+
+events: function(fetchInfo, successCallback, failureCallback) {
+
+fetch('/api/reservas/')
+.then(response => response.json())
+.then(data => {
+
+reservasExistentes = data
+
+let eventos = data.map(reserva => {
+
+return {
+start: reserva.start,
+end: reserva.end,
+display: 'background',
+backgroundColor: '#ff4d4d'
+}
+
+})
+
+successCallback(eventos)
+
+})
+.catch(error => failureCallback(error))
+
+}
+
+});
+
+calendar.render();
+
+});
+
+
+function irParaReserva(){
+
+if(!dataEntrada || !dataSaida){
+
+alert("Selecione as datas primeiro")
+return
+
+}
+
+window.location.href = "/reservar/?entrada=" + dataEntrada + "&saida=" + dataSaida
+
+}
+
+</script>
+
+</body>
+
+</html>
